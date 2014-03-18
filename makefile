@@ -2,7 +2,7 @@ LANG	= C++-unordered_map C++-google_dense_hash C-dtype C-khash Java-Colt Java-Ha
 CLEAN 	= $(LANG:%=clean-%)
 RUN	= $(LANG:%=run-%)
 
-SIZES		?= 10 100 1000 10000 100000 1000000 100000000
+SIZES		?= 10 100 1000 10000 100000 1000000 10000000 100000000
 REQUESTS	?= 1000000
 MEASUREMENTS	?= 100
 

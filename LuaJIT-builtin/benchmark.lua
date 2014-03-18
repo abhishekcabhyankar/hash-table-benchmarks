@@ -48,6 +48,8 @@ function main(arg)
       
       t = t + lookup(m, b, r)
       m = {}
+      a = {}
+      b = {}
    end
 
    io.write(string.format("%.2f MOPS\n", (r  * k) / t))

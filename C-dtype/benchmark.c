@@ -35,38 +35,43 @@ utime_t lookup(dmap_32_t *m, uint32_t *b, int r)
   return t2 - t1;  
 }
 
-void randomize_input(uint32_t *a, int n, uint32_t *b, int r)
+void randomize_input(uint32_t *a, int n, uint32_t *b, int r, float p)
 {
-  int i;
+  int i, hit;
 
   for (i = 0; i < n; i ++)
-    a[i] = rand() % (UINT32_MAX - 2);
+    a[i] = (uint32_t) rand() % (UINT32_MAX - 2);
   for (i = 0; i < r; i ++)
-    b[i] = i % 2 ? a[rand() % n] : (uint32_t) rand() % (UINT32_MAX - 2);
+    {
+      hit = ((float) rand() / (float) RAND_MAX) <= p;
+      b[i] = hit ? a[rand() % n] : (uint32_t) rand() % (UINT32_MAX - 2);
+    }
 }
 
 void usage()
 {
   extern char *__progname;
 
-  fprintf(stderr, "usage: %s <size> <requests>\n", __progname);
+  fprintf(stderr, "usage: %s <size> <requests> <measurements> <hit probability>\n", __progname);
   exit(EXIT_FAILURE);
 }
 
 int main(int argc, char **argv)
 {
   long k, n, r, i, j;
+  float p;
   uint32_t *a, *b; 
   dmap_32_t *m;
   utime_t t;
 
-  if (argc != 4)
+  if (argc != 5)
     usage();
   
   n = strtol(argv[1], NULL, 0);
   r = strtol(argv[2], NULL, 0);
   k = strtol(argv[3], NULL, 0);
-  
+  p = strtof(argv[4], NULL);
+
   a = malloc(n * sizeof *a);
   b = malloc(r * sizeof *b);
   
@@ -75,11 +80,11 @@ int main(int argc, char **argv)
     {
       m = dmap_32_new(sizeof(uint32_t), UINT32_MAX, UINT32_MAX - 1);
       dmap_32_max_load_factor(m, 0.5);
-      randomize_input(a, n, b, r);
+      randomize_input(a, n, b, r, p);
       
       for (i = 0; i < n; i ++)
 	dmap_32_insert(m, a[i], &i);
-      
+
       t += lookup(m, b, r);
       
       dmap_32_free(m);

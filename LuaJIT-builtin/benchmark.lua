@@ -4,6 +4,7 @@ local socket = require("socket")
  
 function lookup(m, b, r)
    local sum = 0
+   local count = 0;
    
    local t1 = socket.gettime()
    for i = 1, r do
@@ -17,16 +18,16 @@ function lookup(m, b, r)
    return (t2 - t1) * 1000000
 end
 
-function random_input(a, n, b, r)
+function random_input(a, n, b, r, p)
    for i = 1, n do
-      a[i] = math.random(0, 1000000000)
+      a[i] = math.random(0, 2000000000)
    end
    for i = 1, r do
-      if i % 2 == 1
+      if math.random() <= p
       then
 	 b[i] = a[math.random(1, n)]
       else
-	 b[i] = math.random(0, 1000000000)
+	 b[i] = math.random(0, 2000000000)
       end
    end
 end
@@ -35,17 +36,18 @@ function main(arg)
    local n = tonumber(arg[1])
    local r = tonumber(arg[2])
    local k = tonumber(arg[3])
+   local p = tonumber(arg[4])
    local m = {}
    local a = {}
    local b = {}
 
    local t = 0
    for j = 1, k do
-      random_input(a, n, b, r)
+      random_input(a, n, b, r, p)
       for i = 1, n do 
 	 m[a[i]] = i
       end
-      
+
       t = t + lookup(m, b, r)
       m = {}
       a = {}

@@ -2,6 +2,7 @@ PROG		= Benchmark.class
 SIZES           ?= 10 100 1000 10000 100000 1000000 10000000 100000000
 REQUESTS	?= 1000000
 MEASUREMENTS	?= 100
+HITPROBABILITY	?= 0.5
 
 .SUFFIXES: .java .class
 .PHONY:	all run clean
@@ -12,7 +13,7 @@ MEASUREMENTS	?= 100
 all: $(PROG)
 
 run: $(PROG)
-	@$(foreach i, $(SIZES), /bin/echo -n "$i: "; java Benchmark $i $(REQUESTS) $(MEASUREMENTS);)
+	@$(foreach i, $(SIZES), /bin/echo -n "$i: "; java Benchmark $i $(REQUESTS) $(MEASUREMENTS) $(HITPROBABILITY);)
 
 clean:
 	rm -rf $(PROG) *~

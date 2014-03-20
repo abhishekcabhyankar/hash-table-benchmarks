@@ -40,21 +40,24 @@ utime_t lookup(khash_t(khint_t) *m, khint_t *b, int r)
   return t2 - t1;
 }
 
-void randomize_input(khint_t *a, int n, khint_t *b, int r)
+void randomize_input(khint_t *a, int n, khint_t *b, int r, float p)
 {
-  int i;
+  int i, hit;
 
   for (i = 0; i < n; i ++)
     a[i] = rand();
   for (i = 0; i < r; i ++)
-    b[i] = i % 2 ? a[rand() % n] : (khint_t) rand();
+    {
+      hit = ((float) rand() / (float) RAND_MAX) <= p;
+      b[i] = hit ? a[rand() % n] : (khint_t) rand();
+    }
 }
 
 void usage()
 {
   extern char *__progname;
 
-  fprintf(stderr, "usage: %s <size> <requests> <measurements>\n", __progname);
+  fprintf(stderr, "usage: %s <size> <requests> <measurements> <hit probability>\n", __progname);
   exit(EXIT_FAILURE);
 }
 
@@ -66,19 +69,20 @@ void unused()
 
 int main(int argc, char **argv)
 {
-  int n, r, k, i, j;
-  int ret;
+  int n, r, k, i, j, ret;
+  float p;
   khint_t *a, *b;
   khash_t(khint_t) *m;
   unsigned int position;
   utime_t t;
 
-  if (argc != 4)
+  if (argc != 5)
     usage();
   
   n = strtol(argv[1], NULL, 0);
   r = strtol(argv[2], NULL, 0);
   k = strtol(argv[3], NULL, 0);
+  p = strtof(argv[4], NULL);
 
   a = malloc(n * sizeof *a);
   b = malloc(r * sizeof *b);
@@ -87,7 +91,8 @@ int main(int argc, char **argv)
   for (j = 0; j < k; j ++)
     {
       m = kh_init(khint_t);
-      randomize_input(a, n, b, r);
+      randomize_input(a, n, b, r, p);
+
       for (i = 0; i < n; i ++)
 	{	  
 	  position = kh_put(khint_t, m, a[i], &ret);
